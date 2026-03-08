@@ -1,16 +1,36 @@
-# これはサンプルの Python スクリプトです。
+import requests
+from bs4 import BeautifulSoup
 
-# ⌃R を押して実行するか、ご自身のコードに置き換えてください。
-# ⇧ を2回押す を押すと、クラス/ファイル/ツールウィンドウ/アクション/設定を検索します。
+def main():
+    url = "https://coconala.com/requests?recruiting=true"
+    response = requests.get(url, headers={
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    })
+
+    if not response.ok:
+        raise requests.exceptions.ConnectionError
+    try:
+        soup = BeautifulSoup(response.content, "html.parser")
+    except Exception as e:
+        raise e
+
+    demand_card_elements = soup.select(".c-searchItemWrapper.c-searchItemWrapper-hoverShadow")
+    if not demand_card_elements:
+        raise ValueError("Could not find the demands card element.")
+
+    for demand_card in demand_card_elements:
+        link_element = demand_card.select_one("a.c-searchItem_detailLink")
+        if not link_element:
+            continue
+        link = link_element.get("href")
+        info_box = demand_card.select_one(".c-itemInfo")
+        if not info_box:
+            continue
 
 
-def print_hi(name):
-    # スクリプトをデバッグするには以下のコード行でブレークポイントを使用してください。
-    print(f'Hi, {name}')  # ⌘F8を押すとブレークポイントを切り替えます。
 
 
-# ガター内の緑色のボタンを押すとスクリプトを実行します。
-if __name__ == '__main__':
-    print_hi('PyCharm')
+    return
 
-# PyCharm のヘルプは https://www.jetbrains.com/help/pycharm/ を参照してください
+if __name__ == "__main__":
+    main()
